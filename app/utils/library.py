@@ -84,3 +84,6 @@ class Library:
     def remove_track(self, file):
         id = hash_name(file)
         del self.tracks[id]
+
+
+library = Library()

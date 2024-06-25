@@ -1,6 +1,6 @@
 import os
 import re
-from app import library
+from app.utils.library import library
 from http import HTTPStatus as Status
 from flask import Blueprint, request, Response, send_file
 
