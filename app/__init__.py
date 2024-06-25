@@ -1,4 +1,6 @@
 from flask_cors import CORS
+from socketio import WSGIApp
+from app.utils.sio import sio
 from app.utils.environment import env
 from app.utils.library import Library
 from app.utils.logger import get_logger
@@ -12,6 +14,7 @@ app = Flask(
     template_folder="../dist",
 )
 cors = CORS(app, resources={r"/*": {"origins": env.DEV_CLIENT}})
+app.wsgi_app = WSGIApp(sio, app.wsgi_app)
 library = Library()
 logger = get_logger(__name__)
 
