@@ -1,18 +1,9 @@
-import socketio
-
+from flask_cors import CORS
+from app.utils.environment import env
 from app.utils.library import Library
 from app.utils.logger import get_logger
 from flask import Flask, render_template, Response
 
-
-app = Flask(__name__)
-sio = socketio.Server()
-app = socketio.WSGIApp(sio, app)
-library = Library()
-logger = get_logger(__name__)
-
-
-from app.routes.tracks import track_bp
 
 app = Flask(
     __name__,
@@ -20,6 +11,9 @@ app = Flask(
     static_url_path="/ui/assets",
     template_folder="../dist",
 )
+cors = CORS(app, resources={r"/*": {"origins": env.DEV_CLIENT}})
+library = Library()
+logger = get_logger(__name__)
 
 
 @app.route("/ui/", defaults={"subpath": ""})
@@ -27,6 +21,8 @@ app = Flask(
 def ui_routes(subpath):
     return render_template("index.html")
 
+
+from app.routes.tracks import track_bp
 
 app.register_blueprint(track_bp, url_prefix="/api/tracks")
 

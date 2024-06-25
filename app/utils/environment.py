@@ -23,6 +23,7 @@ class Environment:
     WAITRESS_THREADS: int
     MUSIC_FOLDER: folder_path
     LOG_FILE: str
+    DEV_CLIENT: str
     IS_PRODUCTION: bool = False
 
     def __post_init__(self):
@@ -37,6 +38,7 @@ env_vars_to_keys = {
     "WAITRESS_THREADS": "WAITRESS_THREADS",
     "MUSIC_FOLDER": "MUSIC_FOLDER",
     "LOG_FILE": "LOG_FILE",
+    "DEV_CLIENT": "DEV_CLIENT",
 }
 
 env = Environment(**{k: os.environ[v] for k, v in env_vars_to_keys.items()})
