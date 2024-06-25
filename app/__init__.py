@@ -22,6 +22,7 @@ def ui_routes(subpath):
     return render_template("index.html")
 
 
+# add '/api/track/*' endpoints
 from app.routes.tracks import track_bp
 
 app.register_blueprint(track_bp, url_prefix="/api/tracks")
