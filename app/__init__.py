@@ -1,7 +1,13 @@
+from app.utils.environment import env
+
+if env.IS_PRODUCTION:
+    from gevent import monkey
+
+    monkey.patch_all()
+
 from flask_cors import CORS
 from socketio import WSGIApp
 from app.utils.sio import sio
-from app.utils.environment import env
 from app.utils.library import Library
 from app.utils.logger import get_logger
 from flask import Flask, render_template, Response
