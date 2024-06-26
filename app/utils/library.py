@@ -16,6 +16,17 @@ def hash_name(name):
     return hasher.hexdigest()
 
 
+def singleton(cls):
+    instances = {}
+
+    def get_instance(*args, **kwargs):
+        if cls not in instances:
+            instances[cls] = cls(*args, **kwargs)
+        return instances[cls]
+
+    return get_instance
+
+
 class FSEventHandler(FileSystemEventHandler):
     def __init__(self, library):
         super().__init__()
@@ -48,9 +59,12 @@ class Track:
         }
 
 
+@singleton
 class Library:
     def __init__(self, recursive=True):
         self.tracks = {}
+        self.add_track_cb = lambda track: None
+        self.remove_track_cb = lambda track_id: None
         pattern = "**/*" if recursive else "*"
         for file in glob.glob(
             os.path.join(env.MUSIC_FOLDER, pattern), recursive=recursive
@@ -79,11 +93,12 @@ class Library:
             pass
         track = Track(track_id, file, mime, title, almbums, artists)
         self.tracks[track_id] = track
-        return track
+        self.add_track_cb(track)
 
     def remove_track(self, file):
         id = hash_name(file)
         del self.tracks[id]
+        self.remove_track_cb(id)
 
 
 library = Library()

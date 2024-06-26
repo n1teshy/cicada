@@ -5,9 +5,14 @@ from app.utils.environment import env
 EVENT_TRACKS = "tracks"
 EVENT_NEW_USER = "new-user"
 EVENT_USER_EXIT = "user-exit"
+EVENT_TRACK_ADDED = "track-added"
+EVENT_TRACK_REMOVED = "track-removed"
 
 
-sio = Server(cors_allowed_origins=[env.DEV_CLIENT])
+async_mode = "gevent" if env.IS_PRODUCTION else "threading"
+sio = Server(async_mode=async_mode, cors_allowed_origins=[env.DEV_CLIENT])
+library.add_track_cb = lambda track: sio.emit(EVENT_TRACK_ADDED, track.to_dict())
+library.remove_track_cb = lambda track_id: sio.emit(EVENT_TRACK_REMOVED, track_id)
 clients = {}
 
 
