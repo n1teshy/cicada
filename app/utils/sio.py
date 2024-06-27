@@ -2,7 +2,8 @@ from socketio import Server
 from app.utils.library import library
 from app.utils.environment import env
 
-EVENT_TRACKS = "tracks"
+EVENT_CONNECT = "connect"
+EVENT_DISCONNECT = "disconnect"
 EVENT_NEW_USER = "new-user"
 EVENT_USER_EXIT = "user-exit"
 EVENT_TRACK_ADDED = "track-added"
@@ -26,7 +27,7 @@ class Client:
         return {"name": self.name, "bio": self.bio}
 
 
-@sio.on("connect")
+@sio.on(EVENT_CONNECT)
 def connect(sid, environ, auth):
     ip = environ["REMOTE_ADDR"]
     name = auth.get("name") if auth else None
@@ -36,7 +37,7 @@ def connect(sid, environ, auth):
     sio.emit(EVENT_NEW_USER, client.to_dict(), skip_sid=sid)
 
 
-@sio.on("disconnect")
+@sio.on(EVENT_DISCONNECT)
 def disconnect(sid):
     client = clients[sid]
     del clients[sid]
