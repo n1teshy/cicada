@@ -17,8 +17,10 @@ EVENT_SPEAK_TO_HIVE = "speak-to-hive"
 EVENT_PLAY_IN_HIVE = "play-in-hive"
 EVENT_PAUSE_IN_HIVE = "pause-in-hive"
 
-async_mode = "gevent" if env.IS_PRODUCTION else "threading"
-sio = Server(async_mode=async_mode, cors_allowed_origins=[env.DEV_CLIENT])
+sio_params = {"async_mode": "gevent" if env.IS_PRODUCTION else "threading"}
+if not env.IS_PRODUCTION:
+    sio_params["cors_allowed_origins"] = [env.DEV_CLIENT]
+sio = Server(**sio_params)
 library.add_track_cb = lambda track: sio.emit(EVENT_TRACK_ADDED, track.to_dict())
 library.remove_track_cb = lambda track_id: sio.emit(EVENT_TRACK_REMOVED, track_id)
 users = {}
@@ -94,7 +96,6 @@ def speak_to_hive(sid, message):
     user, hive = users[sid], users[sid].hive
     if hive is None:
         return
-    print(user.name, " wants to say ", message, " to ", hive.name)
     data = {"speaker": user.to_dict(), "message": message}
     sio.emit(EVENT_SPEAK_TO_HIVE, data, room=hive.name)
 
