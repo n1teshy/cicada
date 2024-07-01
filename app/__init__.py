@@ -33,8 +33,10 @@ def ui_routes(subpath):
 
 # add '/api/track/*' endpoints
 from app.routes.tracks import track_bp
+from app.routes.hives import hive_bp
 
 app.register_blueprint(track_bp, url_prefix="/api/tracks")
+app.register_blueprint(hive_bp, url_prefix="/api/hives")
 
 
 @app.errorhandler(Exception)
