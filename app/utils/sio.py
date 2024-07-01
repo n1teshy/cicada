@@ -20,11 +20,11 @@ async_mode = "gevent" if env.IS_PRODUCTION else "threading"
 sio = Server(async_mode=async_mode, cors_allowed_origins=[env.DEV_CLIENT])
 library.add_track_cb = lambda track: sio.emit(EVENT_TRACK_ADDED, track.to_dict())
 library.remove_track_cb = lambda track_id: sio.emit(EVENT_TRACK_REMOVED, track_id)
-clients = {}
+users = {}
 hives = {}
 
 
-class Client:
+class User:
     def __init__(self, sid, ip, name=None, bio=None):
         self.sid = sid
         self.name = name or ip
@@ -56,24 +56,24 @@ def connect(sid, environ, auth):
     ip = environ["REMOTE_ADDR"]
     name = auth.get("name") if auth else None
     bio = auth.get("bio") if auth else None
-    client = Client(sid, ip, name, bio)
-    clients[sid] = client
-    sio.emit(EVENT_USER_JOIN, client.to_dict(), skip_sid=sid)
+    user = User(sid, ip, name, bio)
+    users[sid] = user
+    sio.emit(EVENT_USER_JOIN, user.to_dict(), skip_sid=sid)
 
 
 @sio.on(EVENT_DISCONNECT)
 def disconnect(sid):
-    client = clients[sid]
-    if client.hive is not None:
-        remove_from_hive(sid, client.hive.name)
-    del clients[sid]
-    sio.emit(EVENT_USER_EXIT, client.to_dict())
+    user = users[sid]
+    if user.hive is not None:
+        remove_from_hive(sid, user.hive.name)
+    del users[sid]
+    sio.emit(EVENT_USER_EXIT, user.to_dict())
 
 
 @sio.on(EVENT_PLAY_IN_HIVE)
 def play_in_hive(sid, data):
-    client, hive = clients[sid], clients[sid].hive
-    if hive is None or client is not hive.host:
+    user, hive = users[sid], users[sid].hive
+    if hive is None or user is not hive.host:
         return
     if "trackId" not in data or "at" not in data:
         return
@@ -82,41 +82,40 @@ def play_in_hive(sid, data):
 
 @sio.on(EVENT_PAUSE_IN_HIVE)
 def pause_in_hive(sid):
-    client, hive = clients[sid], clients[sid].hive
-    if hive is None or client is not hive.host:
+    user, hive = users[sid], users[sid].hive
+    if hive is None or user is not hive.host:
         return
     sio.emit(EVENT_PAUSE_IN_HIVE, room=hive.name)
 
 
 def add_hive(sid, name):
-    hive = Hive(name, clients[sid])
-    clients[sid].hive = hive
-    hive.host = clients[sid]
+    hive = Hive(name, users[sid])
+    users[sid].hive = hive
+    hive.host = users[sid]
     hives[name] = hive
-    hive.members.add(clients[sid])
+    hive.members.add(users[sid])
     sio.emit(EVENT_HIVE_ADD, hive.to_dict(), skip_sid=sid)
     sio.enter_room(sid, name)
 
 
 def add_to_hive(sid, name):
-    client, hive = clients[sid], hives[name]
-    client.hive = hive
-    hive.members.add(client)
-    sio.emit(EVENT_HIVE_MEMBER_JOIN, client.to_dict(), room=name)
+    user, hive = users[sid], hives[name]
+    user.hive = hive
+    hive.members.add(user)
+    sio.emit(EVENT_HIVE_MEMBER_JOIN, user.to_dict(), room=name)
     sio.enter_room(sid, name)
 
 
 def remove_from_hive(sid, name):
-    client, hive = clients[sid], hives[name]
-    if client is hive.host:
-        print("client is host, removing the hive")
+    user, hive = users[sid], hives[name]
+    if user is hive.host:
         sio.emit(EVENT_HIVE_REMOVE, name)
         for member in hives[name].members:
             member.hive = None
             sio.leave_room(member.sid, name)
         del hives[name]
         return
-    client.hive = None
-    hive.members.remove(client)
+    user.hive = None
+    hive.members.remove(user)
     sio.leave_room(sid, name)
-    sio.emit(EVENT_HIVE_MEMBER_EXIT, client.to_dict(), to=name)
+    sio.emit(EVENT_HIVE_MEMBER_EXIT, user.to_dict(), to=name)

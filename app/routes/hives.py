@@ -2,7 +2,7 @@ from functools import wraps
 from http import HTTPMethod as Method
 from http import HTTPStatus as Status
 from flask import request, Blueprint, Response
-from app.utils.sio import clients, hives, add_hive, add_to_hive, remove_from_hive
+from app.utils.sio import users, hives, add_hive, add_to_hive, remove_from_hive
 
 
 hive_bp = Blueprint("hive", __name__)
@@ -33,7 +33,7 @@ def hive(name):
     if exists:
         message = f"Hive '{name}' exists already"
         return {"message": message}, Status.UNPROCESSABLE_ENTITY
-    if clients[request.sid].hive is not None:
+    if users[request.sid].hive is not None:
         message = "You may not join multiple hives"
         return {"message": message}, Status.FORBIDDEN
     add_hive(request.sid, name)
@@ -46,10 +46,10 @@ def join_hive(name):
     if name not in hives:
         message = f"Hive '{name}' does not exist"
         return {"message": message}, Status.NOT_FOUND
-    client, hive = clients[request.sid], hives[name]
-    if client.hive is not None:
+    user, hive = users[request.sid], hives[name]
+    if user.hive is not None:
         message = "You may not join multiple hives"
-        if client.hive is hive:
+        if user.hive is hive:
             message = f"You already are a member of '{name}'"
         return {"message": message}, Status.UNPROCESSABLE_ENTITY
     add_to_hive(request.sid, name)
@@ -62,8 +62,8 @@ def exit_hive(name):
     if name not in hives:
         message = f"Hive '{name}' does not exist"
         return {"message": message}, Status.NOT_FOUND
-    client, hive = clients[request.sid], hives[name]
-    if client not in hive.members:
+    user, hive = users[request.sid], hives[name]
+    if user not in hive.members:
         message = f"You may not a member of '{name}'"
         return {"message": message}, Status.UNAUTHORIZED
     remove_from_hive(request.sid, name)
