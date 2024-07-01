@@ -59,6 +59,12 @@ class Track:
         }
 
 
+def start_observer(library, recursive):
+    observer = Observer()
+    observer.schedule(FSEventHandler(library), env.MUSIC_FOLDER, recursive=recursive)
+    observer.start()
+
+
 @singleton
 class Library:
     def __init__(self, recursive=True):
@@ -70,11 +76,6 @@ class Library:
             os.path.join(env.MUSIC_FOLDER, pattern), recursive=recursive
         ):
             self.add_track(file)
-        self.observer = Observer()
-        self.observer.schedule(
-            FSEventHandler(self), env.MUSIC_FOLDER, recursive=recursive
-        )
-        self.observer.start()
 
     def add_track(self, file):
         mime = mimetypes.guess_type(file)[0]
