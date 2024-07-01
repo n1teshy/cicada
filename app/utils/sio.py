@@ -13,6 +13,7 @@ EVENT_HIVE_ADD = "add-hive"
 EVENT_HIVE_REMOVE = "remove-hive"
 EVENT_HIVE_MEMBER_JOIN = "hive-member-join"
 EVENT_HIVE_MEMBER_EXIT = "hive-member-exit"
+EVENT_SPEAK_TO_HIVE = "speak-to-hive"
 EVENT_PLAY_IN_HIVE = "play-in-hive"
 EVENT_PAUSE_IN_HIVE = "pause-in-hive"
 
@@ -86,6 +87,16 @@ def pause_in_hive(sid):
     if hive is None or user is not hive.host:
         return
     sio.emit(EVENT_PAUSE_IN_HIVE, room=hive.name)
+
+
+@sio.on(EVENT_SPEAK_TO_HIVE)
+def speak_to_hive(sid, message):
+    user, hive = users[sid], users[sid].hive
+    if hive is None:
+        return
+    print(user.name, " wants to say ", message, " to ", hive.name)
+    data = {"speaker": user.to_dict(), "message": message}
+    sio.emit(EVENT_SPEAK_TO_HIVE, data, room=hive.name)
 
 
 def add_hive(sid, name):
