@@ -34,7 +34,6 @@ env_vars_to_keys = {
     "HOST": "HOST",
     "PORT": "PORT",
     "MUSIC_FOLDER": "MUSIC_FOLDER",
-    "MUSIC_FOLDER": "MUSIC_FOLDER",
     "LOG_FILE": "LOG_FILE",
     "DEV_CLIENT": "DEV_CLIENT",
 }
