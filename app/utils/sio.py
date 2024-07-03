@@ -16,6 +16,8 @@ EVENT_HIVE_MEMBER_EXIT = "hive-member-exit"
 EVENT_SPEAK_TO_HIVE = "speak-to-hive"
 EVENT_PLAY_IN_HIVE = "play-in-hive"
 EVENT_PAUSE_IN_HIVE = "pause-in-hive"
+EVENT_HIVE_TRACK_SYN = "hive-track-syn"
+EVENT_HIVE_TRACK_ACK = "hive-track-ack"
 
 sio_params = {"async_mode": "gevent" if env.IS_PRODUCTION else "threading"}
 if not env.IS_PRODUCTION:
@@ -89,6 +91,22 @@ def pause_in_hive(sid):
     if hive is None or user is not hive.host:
         return
     sio.emit(EVENT_PAUSE_IN_HIVE, room=hive.name)
+
+
+@sio.on(EVENT_HIVE_TRACK_SYN)
+def hive_track_syn(sid, trackId):
+    user = users[sid]
+    if user.hive is None or user.hive.host is not user:
+        return
+    sio.emit(EVENT_HIVE_TRACK_SYN, trackId, room=user.hive.name)
+
+
+@sio.on(EVENT_HIVE_TRACK_ACK)
+def hive_track_ack(sid, trackId):
+    user = users[sid]
+    if user.hive is None:
+        return
+    sio.emit(EVENT_HIVE_TRACK_ACK, trackId, room=user.hive.name)
 
 
 @sio.on(EVENT_SPEAK_TO_HIVE)
