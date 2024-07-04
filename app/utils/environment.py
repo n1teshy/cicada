@@ -30,13 +30,6 @@ class Environment:
             setattr(self, name, cast(getattr(self, name)))
 
 
-env_vars_to_keys = {
-    "HOST": "HOST",
-    "PORT": "PORT",
-    "MUSIC_FOLDER": "MUSIC_FOLDER",
-    "LOG_FILE": "LOG_FILE",
-    "DEV_CLIENT": "DEV_CLIENT",
-}
-
-env = Environment(**{k: os.environ[v] for k, v in env_vars_to_keys.items()})
+env_vars = ["HOST", "PORT", "MUSIC_FOLDER", "LOG_FILE", "DEV_CLIENT"]
+env = Environment(**{key: os.environ[key] for key in env_vars})
 env.IS_PRODUCTION = os.environ["ENV"] == "PROD"
