@@ -1,7 +1,7 @@
+import socket
 from socketio import Server
 from app.utils.library import library
 from app.utils.environment import env
-from http import HTTPStatus as Status
 
 EVENT_CONNECT = "connect"
 EVENT_DISCONNECT = "disconnect"
@@ -30,9 +30,9 @@ hives = {}
 
 
 class User:
-    def __init__(self, sid, ip, name=None, bio=None):
+    def __init__(self, sid, name, bio=None):
         self.sid = sid
-        self.name = name or ip
+        self.name = name
         self.bio = bio
         self.hive = None
 
@@ -60,8 +60,16 @@ class Hive:
 def connect(sid, environ, auth):
     ip = environ["REMOTE_ADDR"]
     name = auth.get("name") if auth else None
+    if not name:
+        try:
+            hostname, _, __ = socket.gethostbyaddr(ip)
+            name = hostname
+        except OSError:
+            pass
+    if not name:
+        name = ip
     bio = auth.get("bio") if auth else None
-    user = User(sid, ip, name, bio)
+    user = User(sid, name, bio)
     users[sid] = user
     sio.emit(EVENT_USER_JOIN, user.to_dict(), skip_sid=sid)
 
