@@ -1,7 +1,9 @@
 import socket
+
 from socketio import Server
-from app.utils.library import library
+
 from app.utils.environment import env
+from app.utils.library import library
 
 EVENT_CONNECT = "connect"
 EVENT_DISCONNECT = "disconnect"
@@ -23,8 +25,12 @@ sio_params = {"async_mode": "gevent" if env.IS_PRODUCTION else "threading"}
 if not env.IS_PRODUCTION:
     sio_params["cors_allowed_origins"] = [env.DEV_CLIENT]
 sio = Server(**sio_params)
-library.add_track_cb = lambda track: sio.emit(EVENT_TRACK_ADDED, track.to_dict())
-library.remove_track_cb = lambda track_id: sio.emit(EVENT_TRACK_REMOVED, track_id)
+library.add_track_cb = lambda track: sio.emit(
+    EVENT_TRACK_ADDED, track.to_dict()
+)
+library.remove_track_cb = lambda track_id: sio.emit(
+    EVENT_TRACK_REMOVED, track_id
+)
 users = {}
 hives = {}
 

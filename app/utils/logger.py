@@ -1,14 +1,15 @@
 import logging
+from logging.handlers import RotatingFileHandler
 
 from app.utils.environment import env
-from logging.handlers import RotatingFileHandler
 
 
 def get_logger(name, level=logging.INFO):
     logger = logging.getLogger(name)
     logger.setLevel(level)
     formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s", "%d-%m-%Y %H:%M:%S"
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        "%d-%m-%Y %H:%M:%S",
     )
     file_handler = RotatingFileHandler(
         env.LOG_FILE, maxBytes=10 * 1024 * 1024, backupCount=5
