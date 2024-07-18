@@ -1,13 +1,13 @@
-import os
-import glob
 import hashlib
 import mimetypes
+import os
 
-from mutagen import File
+import mutagen
+from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
+
 from app.utils.environment import env
 from app.utils.logger import get_logger
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
 
 logger = get_logger(__name__)
 
@@ -42,7 +42,9 @@ class FSEventHandler(FileSystemEventHandler):
 
 
 class Track:
-    def __init__(self, id, file, mime, title, albums, artists, duration, cover_id=None):
+    def __init__(
+        self, id, file, mime, title, albums, artists, duration, cover_id=None
+    ):
         self.id = id
         self.file = file
         self.mime = mime
@@ -65,7 +67,9 @@ class Track:
 
 def start_observer(library, recursive):
     observer = Observer()
-    observer.schedule(FSEventHandler(library), env.MUSIC_FOLDER, recursive=recursive)
+    observer.schedule(
+        FSEventHandler(library), env.MUSIC_FOLDER, recursive=recursive
+    )
     observer.start()
 
 
@@ -75,19 +79,16 @@ class Library:
         self.tracks = {}
         self.add_track_cb = lambda track: None
         self.remove_track_cb = lambda track_id: None
-        pattern = "**/*" if recursive else "*"
-        for file in glob.glob(
-            os.path.join(env.MUSIC_FOLDER, pattern), recursive=recursive
-        ):
-            self.add_track(file)
+        for file in env.MUSIC_FOLDER.rglob("*"):
+            self.add_track(str(file))
 
     def add_track(self, file):
         mime = mimetypes.guess_type(file)[0]
         if not mime or not mime.startswith("audio"):
             return None
         try:
-            audio = File(file)
-        except:
+            audio = mutagen.File(file)
+        except mutagen.MutagenError:
             logger.error(f"could not open {file}")
             return
         track_id = hash_name(file)
@@ -99,7 +100,7 @@ class Library:
             artists = audio.tags["TPE1"].text
             almbums = audio.tags["TALB"].text
             # TODO: add cover image
-        except:
+        except KeyError:
             pass
         track = Track(track_id, file, mime, title, almbums, artists, duration)
         self.tracks[track_id] = track

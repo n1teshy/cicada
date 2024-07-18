@@ -1,19 +1,17 @@
 import os
-from dotenv import load_dotenv
 from dataclasses import dataclass
+from pathlib import Path
 from typing import get_type_hints
+
+from dotenv import load_dotenv
 
 load_dotenv()
 
 
 def folder_path(value):
-    assert os.path.isdir(value), "'%s' is not a folder" % (value,)
-    return os.path.abspath(value)
-
-
-def file_path(value):
-    assert os.path.isfile(value), "'%s' is not a file" % (value,)
-    return os.path.abspath(value)
+    path = Path(value)
+    assert path.is_dir, f'"{path}" is not a folder'
+    return path
 
 
 @dataclass
