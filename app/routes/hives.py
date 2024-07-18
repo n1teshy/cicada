@@ -1,11 +1,12 @@
 from functools import wraps
 from http import HTTPMethod as Method
 from http import HTTPStatus as Status
-from flask import request, Blueprint, Response
-from app.utils.sio import users, hives, add_hive, add_to_hive, remove_from_hive
 
+from flask import Blueprint, Response, request
 
-hive_bp = Blueprint("hive", __name__)
+from app.utils.sio import add_hive, add_to_hive, hives, remove_from_hive, users
+
+hive_bp = Blueprint("hive", __name__, url_prefix="/api/hives")
 
 
 def require_sid(f):

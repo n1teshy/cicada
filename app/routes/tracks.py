@@ -1,11 +1,12 @@
 import os
 import re
-from app.utils.library import library
 from http import HTTPStatus as Status
-from flask import Blueprint, request, Response, send_file
 
+from flask import Blueprint, Response, request, send_file
 
-track_bp = Blueprint("tracks", __name__)
+from app.utils.library import library
+
+track_bp = Blueprint("tracks", __name__, url_prefix="/api/tracks")
 
 
 @track_bp.route("/")
@@ -22,7 +23,7 @@ def track(track_id):
     range = request.headers.get("Range")
     if range is None:
         return send_file(track.file)
-    range = re.match("bytes=(\d+)-(\d*)", range)
+    range = re.match(r"bytes=(\d+)-(\d*)", range)
     if range is None:
         return Response(status=Status.BAD_REQUEST)
     start = int(range.group(1))

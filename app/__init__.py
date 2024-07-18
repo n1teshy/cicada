@@ -5,13 +5,14 @@ if env.IS_PRODUCTION:
 
     monkey.patch_all()
 
+from flask import Flask, Response, render_template
 from flask_cors import CORS
 from socketio import WSGIApp
-from app.utils.sio import sio
+
+from app.routes import hive_bp, track_bp
 from app.utils.library import Library
 from app.utils.logger import get_logger
-from flask import Flask, render_template, Response
-
+from app.utils.sio import sio
 
 app = Flask(
     __name__,
@@ -31,12 +32,8 @@ def ui_routes(subpath):
     return render_template("index.html")
 
 
-# add '/api/track/*' endpoints
-from app.routes.tracks import track_bp
-from app.routes.hives import hive_bp
-
-app.register_blueprint(track_bp, url_prefix="/api/tracks")
-app.register_blueprint(hive_bp, url_prefix="/api/hives")
+app.register_blueprint(track_bp)
+app.register_blueprint(hive_bp)
 
 
 @app.errorhandler(Exception)
