@@ -6,7 +6,7 @@ import mutagen
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
-from app.utils.environment import env
+import app.globals as glb
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -68,7 +68,7 @@ class Track:
 def start_observer(library, recursive):
     observer = Observer()
     observer.schedule(
-        FSEventHandler(library), env.MUSIC_FOLDER, recursive=recursive
+        FSEventHandler(library), glb.MUSIC_DIR, recursive=recursive
     )
     observer.start()
 
@@ -79,7 +79,7 @@ class Library:
         self.tracks = {}
         self.add_track_cb = lambda track: None
         self.remove_track_cb = lambda track_id: None
-        for file in env.MUSIC_FOLDER.rglob("*"):
+        for file in glb.MUSIC_DIR.rglob("*"):
             self.add_track(str(file))
 
     def add_track(self, file):

@@ -2,7 +2,7 @@ import socket
 
 from socketio import Server
 
-from app.utils.environment import env
+import app.globals as glb
 from app.utils.library import library
 
 EVENT_CONNECT = "connect"
@@ -21,9 +21,9 @@ EVENT_PAUSE_IN_HIVE = "pause-in-hive"
 EVENT_HIVE_TRACK_SYN = "hive-track-syn"
 EVENT_HIVE_TRACK_ACK = "hive-track-ack"
 
-sio_params = {"async_mode": "gevent" if env.IS_PRODUCTION else "threading"}
-if not env.IS_PRODUCTION:
-    sio_params["cors_allowed_origins"] = [env.DEV_CLIENT]
+sio_params = {"async_mode": "gevent" if glb.IS_PROD else "threading"}
+if not glb.IS_PROD:
+    sio_params["cors_allowed_origins"] = [glb.DEV_CLIENT]
 sio = Server(**sio_params)
 library.add_track_cb = lambda track: sio.emit(
     EVENT_TRACK_ADDED, track.to_dict()

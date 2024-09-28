@@ -1,6 +1,6 @@
-from app.utils.environment import env
+import app.globals as glb
 
-if env.IS_PRODUCTION:
+if glb.IS_PROD:
     from gevent import monkey
 
     monkey.patch_all()
@@ -20,7 +20,8 @@ app = Flask(
     static_url_path="/ui/assets",
     template_folder="../dist",
 )
-cors = CORS(app, resources={r"/*": {"origins": env.DEV_CLIENT}})
+if not glb.IS_PROD:
+    CORS(app, resources={r"/*": {"origins": glb.DEV_CLIENT}})
 app.wsgi_app = WSGIApp(sio, app.wsgi_app)
 library = Library()
 logger = get_logger(__name__)
