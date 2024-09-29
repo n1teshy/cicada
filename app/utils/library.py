@@ -80,7 +80,7 @@ class Library:
         self.add_track_cb = lambda track: None
         self.remove_track_cb = lambda track_id: None
         for file in glb.MUSIC_DIR.rglob("*"):
-            self.add_track(str(file))
+            self.add_track(str(file.absolute()))
 
     def add_track(self, file):
         mime = mimetypes.guess_type(file)[0]
