@@ -16,9 +16,9 @@ from app.utils.sio import sio
 
 app = Flask(
     __name__,
-    static_folder="../dist/assets",
+    static_folder="../ui/assets",
     static_url_path="/ui/assets",
-    template_folder="../dist",
+    template_folder="../ui",
 )
 if not glb.IS_PROD:
     cors_cfg = {"origins": glb.DEV_CLIENT}
