@@ -22,8 +22,8 @@ python run.py 0.0.0.0 8080 ./music_directory
 
 ### Vanilla mode
 
-![Vanilla home page](https://raw.githubusercontent.com/n1teshy/cicada/refs/heads/test/images/vanilla_mode.png)
+![Vanilla home page](https://raw.githubusercontent.com/n1teshy/cicada/refs/heads/main/images/vanilla_mode.png)
 
 ### Cicada mode
 
-![Cicada mode steps](https://raw.githubusercontent.com/n1teshy/cicada/refs/heads/test/images/cicada_mode.png)
+![Cicada mode steps](https://raw.githubusercontent.com/n1teshy/cicada/refs/heads/main/images/cicada_mode.png)
