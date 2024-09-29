@@ -3,8 +3,9 @@ import mimetypes
 import os
 
 import mutagen
-from watchdog.events import FileSystemEventHandler
-from watchdog.observers import Observer
+
+# from watchdog.events import FileSystemEventHandler
+# from watchdog.observers import Observer
 
 import app.globals as glb
 from app.utils.logger import get_logger
@@ -29,22 +30,20 @@ def singleton(cls):
     return get_instance
 
 
-class FSEventHandler(FileSystemEventHandler):
-    def __init__(self, library):
-        super().__init__()
-        self.library = library
+# class FSEventHandler(FileSystemEventHandler):
+#     def __init__(self, library):
+#         super().__init__()
+#         self.library = library
 
-    def on_created(self, event):
-        self.library.add_track(event.src_path)
+#     def on_created(self, event):
+#         self.library.add_track(event.src_path)
 
-    def on_deleted(self, event):
-        self.library.remove_track(event.src_path)
+#     def on_deleted(self, event):
+#         self.library.remove_track(event.src_path)
 
 
 class Track:
-    def __init__(
-        self, id, file, mime, title, albums, artists, duration, cover_id=None
-    ):
+    def __init__(self, id, file, mime, title, albums, artists, duration, cover_id=None):
         self.id = id
         self.file = file
         self.mime = mime
@@ -65,17 +64,15 @@ class Track:
         }
 
 
-def start_observer(library, recursive):
-    observer = Observer()
-    observer.schedule(
-        FSEventHandler(library), glb.MUSIC_DIR, recursive=recursive
-    )
-    observer.start()
+# def start_observer(library, recursive):
+#     observer = Observer()
+#     observer.schedule(FSEventHandler(library), glb.MUSIC_DIR, recursive=recursive)
+#     observer.start()
 
 
 @singleton
 class Library:
-    def __init__(self, recursive=True):
+    def __init__(self):
         self.tracks = {}
         self.add_track_cb = lambda track: None
         self.remove_track_cb = lambda track_id: None
