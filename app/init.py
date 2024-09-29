@@ -9,7 +9,7 @@ from flask import Flask, Response, render_template
 from flask_cors import CORS
 from socketio import WSGIApp
 
-from app.routes import hive_bp, track_bp
+from app.routes import hive_bp, track_bp, users_bp
 from app.utils.library import Library
 from app.utils.logger import get_logger
 from app.utils.sio import sio
@@ -21,7 +21,8 @@ app = Flask(
     template_folder="../dist",
 )
 if not glb.IS_PROD:
-    CORS(app, resources={r"/*": {"origins": glb.DEV_CLIENT}})
+    cors_cfg = {"origins": glb.DEV_CLIENT}
+    CORS(app, resources={r"/*": cors_cfg})
 app.wsgi_app = WSGIApp(sio, app.wsgi_app)
 library = Library()
 logger = get_logger(__name__)
@@ -35,6 +36,7 @@ def ui_routes(subpath):
 
 app.register_blueprint(track_bp)
 app.register_blueprint(hive_bp)
+app.register_blueprint(users_bp)
 
 
 @app.errorhandler(Exception)

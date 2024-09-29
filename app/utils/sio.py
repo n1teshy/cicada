@@ -25,12 +25,8 @@ sio_params = {"async_mode": "gevent" if glb.IS_PROD else "threading"}
 if not glb.IS_PROD:
     sio_params["cors_allowed_origins"] = [glb.DEV_CLIENT]
 sio = Server(**sio_params)
-library.add_track_cb = lambda track: sio.emit(
-    EVENT_TRACK_ADDED, track.to_dict()
-)
-library.remove_track_cb = lambda track_id: sio.emit(
-    EVENT_TRACK_REMOVED, track_id
-)
+library.add_track_cb = lambda track: sio.emit(EVENT_TRACK_ADDED, track.to_dict())
+library.remove_track_cb = lambda track_id: sio.emit(EVENT_TRACK_REMOVED, track_id)
 users = {}
 hives = {}
 
@@ -163,3 +159,8 @@ def remove_from_hive(sid, name):
     hive.members.remove(user)
     sio.leave_room(sid, name)
     sio.emit(EVENT_HIVE_MEMBER_EXIT, user.to_dict(), to=name)
+
+
+def update_user_info(sid, name, bio):
+    user = users[sid]
+    user.name, user.bio = name, bio
