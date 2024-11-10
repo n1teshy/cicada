@@ -32,7 +32,7 @@ def hives_vf():
 def hive(name):
     exists = name in hives
     if exists:
-        message = f"Hive '{name}' exists already"
+        message = f"Hive '{name}' already exists"
         return {"message": message}, Status.UNPROCESSABLE_ENTITY
     if users[request.sid].hive is not None:
         message = "You may not join multiple hives"
@@ -65,7 +65,7 @@ def exit_hive(name):
         return {"message": message}, Status.NOT_FOUND
     user, hive = users[request.sid], hives[name]
     if user not in hive.members:
-        message = f"You may not a member of '{name}'"
+        message = f"You are not a member of '{name}'"
         return {"message": message}, Status.UNAUTHORIZED
     remove_from_hive(request.sid, name)
     return Response()

@@ -46,7 +46,7 @@ class Hive:
     def __init__(self, name, host):
         self.name = name
         self.host = host
-        self.members = set()
+        self.members = set([self.host])
         self.poll = None
 
     def to_dict(self):
@@ -90,8 +90,6 @@ def play_in_hive(sid, data):
     user, hive = users[sid], users[sid].hive
     if hive is None or user is not hive.host:
         return
-    if "trackId" not in data or "at" not in data:
-        return
     sio.emit(EVENT_PLAY_IN_HIVE, data, room=hive.name)
 
 
@@ -113,10 +111,11 @@ def hive_track_syn(sid, trackId):
 
 @sio.on(EVENT_HIVE_TRACK_ACK)
 def hive_track_ack(sid, trackId):
+    # print(f"{users[sid].name} ack")
     user = users[sid]
     if user.hive is None:
         return
-    sio.emit(EVENT_HIVE_TRACK_ACK, trackId, room=user.hive.name)
+    sio.emit(EVENT_HIVE_TRACK_ACK, trackId, room=user.hive.host.sid)
 
 
 @sio.on(EVENT_SPEAK_TO_HIVE)
@@ -131,9 +130,7 @@ def speak_to_hive(sid, message):
 def add_hive(sid, name):
     hive = Hive(name, users[sid])
     users[sid].hive = hive
-    hive.host = users[sid]
     hives[name] = hive
-    hive.members.add(users[sid])
     sio.emit(EVENT_HIVE_ADD, hive.to_dict(), skip_sid=sid)
     sio.enter_room(sid, name)
 
@@ -142,8 +139,8 @@ def add_to_hive(sid, name):
     user, hive = users[sid], hives[name]
     user.hive = hive
     hive.members.add(user)
-    sio.emit(EVENT_HIVE_MEMBER_JOIN, user.to_dict(), room=name)
     sio.enter_room(sid, name)
+    sio.emit(EVENT_HIVE_MEMBER_JOIN, user.to_dict(), room=name, skip_sid=user.sid)
 
 
 def remove_from_hive(sid, name):
@@ -152,7 +149,6 @@ def remove_from_hive(sid, name):
         sio.emit(EVENT_HIVE_REMOVE, name)
         for member in hives[name].members:
             member.hive = None
-            sio.leave_room(member.sid, name)
         del hives[name]
         return
     user.hive = None

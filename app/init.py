@@ -41,5 +41,6 @@ app.register_blueprint(users_bp)
 
 @app.errorhandler(Exception)
 def handle_exception(e):
+    raise e
     logger.error(str(e))
     return Response(status=500)
